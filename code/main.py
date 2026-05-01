@@ -8,35 +8,53 @@ from models import Ticket, TriageResult
 from retriever import load_corpus, BM25Retriever
 from agent import SupportAgent
 
+
 def read_input_rows(csv_path: Path) -> list[Ticket]:
     with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
         rows: list[Ticket] = []
         for row in reader:
-            rows.append(Ticket(
-                issue=(row.get("Issue", row.get("issue", "")) or "").strip(),
-                subject=(row.get("Subject", row.get("subject", "")) or "").strip(),
-                company=(row.get("Company", row.get("company", "")) or "").strip()
-            ))
+            rows.append(
+                Ticket(
+                    issue=(row.get("Issue", row.get("issue", "")) or "").strip(),
+                    subject=(row.get("Subject", row.get("subject", "")) or "").strip(),
+                    company=(row.get("Company", row.get("company", "")) or "").strip(),
+                )
+            )
         return rows
 
-def write_output_rows(csv_path: Path, results: list[TriageResult], inputs: list[Ticket]) -> None:
+
+def write_output_rows(
+    csv_path: Path, results: list[TriageResult], inputs: list[Ticket]
+) -> None:
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     with csv_path.open("w", encoding="utf-8", newline="") as handle:
-        fieldnames = ["issue", "subject", "company", "response", "product_area", "status", "request_type", "justification"]
+        fieldnames = [
+            "issue",
+            "subject",
+            "company",
+            "response",
+            "product_area",
+            "status",
+            "request_type",
+            "justification",
+        ]
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         for ticket, result in zip(inputs, results):
-            writer.writerow({
-                "issue": ticket.issue,
-                "subject": ticket.subject,
-                "company": ticket.company or "None",
-                "response": result.response,
-                "product_area": result.product_area,
-                "status": result.status,
-                "request_type": result.request_type,
-                "justification": result.justification,
-            })
+            writer.writerow(
+                {
+                    "issue": ticket.issue,
+                    "subject": ticket.subject,
+                    "company": ticket.company or "None",
+                    "response": result.response,
+                    "product_area": result.product_area,
+                    "status": result.status,
+                    "request_type": result.request_type,
+                    "justification": result.justification,
+                }
+            )
+
 
 def find_input_and_output_paths(repo_root: Path) -> tuple[Path, Path, Path]:
     support_dir = repo_root / "support_tickets"
@@ -57,6 +75,7 @@ def find_input_and_output_paths(repo_root: Path) -> tuple[Path, Path, Path]:
 
     return input_csv, sample_csv, support_dir / output_name
 
+
 def main() -> int:
     repo_root = Path(__file__).resolve().parents[1]
     bootstrap_environment(repo_root)
@@ -74,7 +93,7 @@ def main() -> int:
 
     rows = read_input_rows(input_csv)
     results: list[TriageResult] = []
-    
+
     for row in rows:
         results.append(agent.triage(row))
 
@@ -89,6 +108,7 @@ def main() -> int:
     }
     print(json.dumps(metadata, indent=2))
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

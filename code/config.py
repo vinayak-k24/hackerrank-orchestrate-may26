@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+
 def load_env_file(path: Path) -> None:
     if not path.exists():
         return
@@ -14,9 +15,11 @@ def load_env_file(path: Path) -> None:
         if key and key not in os.environ:
             os.environ[key] = value
 
+
 def bootstrap_environment(repo_root: Path) -> None:
     load_env_file(repo_root / ".env")
     load_env_file(repo_root / ".env.local")
+
 
 def get_config() -> dict[str, str]:
     return {

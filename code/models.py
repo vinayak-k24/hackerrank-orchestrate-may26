@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+
 @dataclass(frozen=True)
 class Article:
     path: Path
@@ -12,6 +13,7 @@ class Article:
     tokens: frozenset[str]
     heading_tokens: frozenset[str]
 
+
 @dataclass(frozen=True)
 class TriageResult:
     status: str
@@ -19,6 +21,7 @@ class TriageResult:
     response: str
     justification: str
     request_type: str
+
 
 @dataclass(frozen=True)
 class Ticket:
